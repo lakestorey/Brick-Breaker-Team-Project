@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Media;
+using System.Xml;
 
 namespace BrickBreaker.Screens
 {
@@ -24,6 +25,8 @@ namespace BrickBreaker.Screens
 
         // Game values
         int lives;
+        int currentLevel = 1;
+        string levelToLoad;
 
         // Paddle and Ball objects
         Paddle paddle;
@@ -72,16 +75,18 @@ namespace BrickBreaker.Screens
             int ballSize = 20;
             ball = new Ball(ballX, ballY, xSpeed, ySpeed, ballSize);
 
-            // Creates blocks for generic level
-            blocks.Clear();
-            int x = 10;
+            //also added by Lake
+            //// Creates blocks for generic level
+            //blocks.Clear();
+            //int x = 10;
 
-            while (blocks.Count < 12)
-            {
-                x += 57;
-                Block b1 = new Block(x, 10, 1, Color.White);
-                blocks.Add(b1);
-            }
+            //while (blocks.Count < 12)
+            //{
+            //    x += 57;
+            //    Block b1 = new Block(x, 10, 1, Color.White);
+            //    blocks.Add(b1);
+            //}
+            loadLevel("level1.xml");
 
             // start the game engine loop
             gameTimer.Enabled = true;
@@ -167,9 +172,63 @@ namespace BrickBreaker.Screens
 
                     if (blocks.Count == 0)
                     {
-                        gameTimer.Enabled = false;
+                        //added by Lake
+                        #region Decide Wich Level To Load
+                        currentLevel++;
 
-                        OnEnd();
+                        switch (currentLevel)
+                        {
+                            case 2:
+                                levelToLoad = "level2.xml";
+                                break;
+                            case 3:
+                                levelToLoad = "level3.xml";
+                                break;
+                            case 4:
+                                levelToLoad = "level4.xml";
+                                break;
+                            case 5:
+                                levelToLoad = "level5.xml";
+                                break;
+                            case 6:
+                                levelToLoad = "level6.xml";
+                                break;
+                            case 7:
+                                levelToLoad = "level7.xml";
+                                break;
+                            case 8:
+                                levelToLoad = "level8.xml";
+                                break;
+                            case 9:
+                                levelToLoad = "level9.xml";
+                                break;
+                            case 10:
+                                levelToLoad = "level10.xml";
+                                break;
+                            case 11:
+                                levelToLoad = "level11.xml";
+                                break;
+                            case 12:
+                                levelToLoad = "level12.xml";
+                                break;
+                            case 13:
+                                levelToLoad = "level13.xml";
+                                break;
+                            case 14:
+                                OnEnd();
+                                break;
+                        }
+
+                        loadLevel(levelToLoad);
+                        ball.x = ((paddle.x - (ball.size / 2)) + (paddle.width / 2));
+                        ball.y = (this.Height - paddle.height) - 85;
+                        paddle.x = ((this.Width / 2) - (80 / 2));
+                        paddle.y = (this.Height - 20) - 60;
+                        #endregion
+
+                        //gameTimer.Enabled = false;
+
+                        //OnEnd();
                     }
 
                     break;
@@ -185,16 +244,73 @@ namespace BrickBreaker.Screens
                 ball.x = ((paddle.x - (ball.size / 2)) + (paddle.width / 2));
                 ball.y = (this.Height - paddle.height) - 85;
 
-                if (lives == 0)
-                {
-                    gameTimer.Enabled = false;
+                //if (lives == 0)
+                //{
+                //    gameTimer.Enabled = false;
 
-                    OnEnd();
-                }
+                //    OnEnd();
+                //}
             }
 
             //redraw the screen
             Refresh();
+        }
+
+        //method to load the levels
+        //Added by Lake
+        public void loadLevel(string Level)
+        {
+            //clear list of blocks
+            blocks.Clear();
+
+            //create temp variables to hold strings
+            string newX = "1";
+            string newY = "1";
+            string newHp = "1";
+            string newColour = "Black";
+
+            //make more temp variables to hold info
+            int blockX;
+            int blockY;
+            int blockHp;
+            Color blockColour;
+
+            int items = 1;
+
+            //extract info
+            XmlTextReader reader = new XmlTextReader(Level);
+
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Text)
+                {
+                    switch (items)
+                    {
+                        case 1:
+                            newX = reader.Value;
+                            break;
+                        case 2:
+                            newY = reader.Value;
+                            break;
+                        case 3:
+                            newHp = reader.Value;
+                            break;
+                        case 4:
+                            newColour = reader.Value;
+                            blockX = Convert.ToInt16(newX);
+                            blockY = Convert.ToInt16(newY);
+                            blockHp = Convert.ToInt16(newHp);
+                            blockColour = Color.FromName(newColour);
+                            
+                            Block newBlock = new Block(blockX, blockY, blockHp, blockColour);
+                            blocks.Add(newBlock);
+                            items = 0;
+                            break;
+                    }
+                    items++;
+                }
+            }
+            reader.Close();
         }
 
         public void OnEnd()
