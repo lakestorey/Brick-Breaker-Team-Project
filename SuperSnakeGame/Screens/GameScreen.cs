@@ -214,8 +214,10 @@ namespace BrickBreaker.Screens
                         ball.y = (this.Height - paddle.height) - 85;
                         paddle.x = ((this.Width / 2) - (80 / 2));
                         paddle.y = (this.Height - 20) - 60;
+                        lives = 3;
                         #endregion
                     }
+                    break;
                 }
             }
 
