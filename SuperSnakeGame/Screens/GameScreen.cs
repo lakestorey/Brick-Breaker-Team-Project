@@ -232,7 +232,7 @@ namespace BrickBreaker.Screens
 
                 if (lives == 0)
                 {
-                    gameTimer.Enabled = false;
+                    gameTimer.Enabled = false; 
 
                     OnEnd();
                 }
